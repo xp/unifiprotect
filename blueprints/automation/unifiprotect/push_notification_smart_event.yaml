@@ -71,6 +71,12 @@ blueprint:
       default: ""
       selector:
         entity:
+    alarm_filter:
+      name: (Optional) Alarm Filter
+      description: Only notify if selected alarm entity is one of "arm_home", "arm_away" or "arm_night".
+      default: ""
+      selector:
+        entity:
     send_mobile:
       name: (Optional) Send Mobile App Notifications
       description: Send mobile app push notifications
@@ -216,6 +222,7 @@ variables:
   input_send_telegram: !input send_telegram
   input_time_format: !input time_format
   input_presence_filter: !input presence_filter
+  input_alarm_filter: !input alarm_filter
   # automation data
   camera_entities: '[{% for eid in device_entities(device_id(input_smart_entity)) %}{%if eid.startswith(''camera'') and not is_state(eid, ''unavailable'') %}"{{ eid }}",{% endif %}{% endfor %}]'
   smart_entities: '[{% for eid in device_entities(device_id(input_smart_entity)) %}{%if eid.startswith(''sensor'') and is_state_attr(eid, "device_class", "occupancy") %}"{{ eid }}",{% endif %}{% endfor %}]'
@@ -266,6 +273,7 @@ trigger:
 condition:
   - "{{ not input_presence_filter or not is_state(input_presence_filter, 'home') }}"
   - "{{ trigger_object in smart_detect_objs }}"
+  - "{{ not input_alarm_filter or is_state(input_alarm_filter, 'arm_home') or is_state(input_alarm_filter, 'arm_away') or is_state(input_alarm_filter, 'arm_night') }}" 
 
 action:
   - choose:
